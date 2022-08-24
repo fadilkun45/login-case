@@ -1,24 +1,40 @@
-import logo from './logo.svg';
 import './App.css';
+import { Route,Routes,BrowserRouter,Navigate,useNavigate } from 'react-router-dom';
+import Login from './Page/Login';
+import Privatepage from './Page/Privatepage';
+import decode from 'jwt-decode'
+
+function PrivateRoute({children}){
+  const token = JSON.parse(localStorage.getItem('users'))
+  
+  //  jika token tidak ada
+  if(!token){
+    return <Navigate to="/login" />
+  }else{
+    // decode token
+    const decodedToken = decode(token);
+
+    console.log(new Date(decodedToken.exp * 1000))
+
+    // cek exp token 
+    if(decodedToken.exp * 1000 > new Date().getTime()) {
+      return children
+    }
+  }
+
+}
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+   <BrowserRouter>
+  <Routes>
+  <Route path="/" element={<Navigate replace to="/login" />} />
+    <Route path="/login" element={<Login />} />
+    <Route path ="/dashboard" element={<PrivateRoute><Privatepage /></PrivateRoute>} />
+  </Routes>
+   
+  </BrowserRouter> 
   );
 }
 
